@@ -59,5 +59,6 @@
     "axios": "^0.21.1",
     "colors": "^1.4.0",
     "node-html-parser": "^3.3.4"
-  }
+  },
+  "publisher": "albireo3754"
 }
