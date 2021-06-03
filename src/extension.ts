@@ -17,14 +17,14 @@ export function activate(context: vscode.ExtensionContext) {
       try {
         const currentlyOpenTabfilePath = vscode.window.activeTextEditor
           ?.document.fileName as string;
+        await vscode.window.activeTextEditor?.document.save();
         const fileNumber = path.basename(currentlyOpenTabfilePath, ".py");
         const boj = new BOJ(context.extensionPath);
         await boj.load(fileNumber);
         const terminal = vscode.window.createOutputChannel("BOJ");
-        const myTextDecorator1 = vscode.window.createTextEditorDecorationType({
-          backgroundColor: "red",
-        });
+
         terminal.show(true);
+        vscode.window.onDidChangeActiveColorTheme;
         boj.test(
           currentlyOpenTabfilePath,
           Number.parseInt(fileNumber),
