@@ -3,6 +3,8 @@ import parse, { HTMLElement } from "node-html-parser";
 import * as fs from "fs";
 import * as path from "path";
 import * as python from "child_process";
+import * as vscode from "vscode";
+
 export default class BOJ {
   constructor(private globalUri: string) {}
 
@@ -77,7 +79,7 @@ export default class BOJ {
     return false;
   }
 
-  test(problemNumber: number) {
+  test(testfile: string, problemNumber: number, channel: vscode.OutputChannel) {
     const problemDirectory = path.join(
       this.globalUri,
       "problem",
@@ -90,7 +92,7 @@ export default class BOJ {
     );
     const fileLists = fs.readdirSync(problemDirectory);
     for (let i = 0; i < fileLists.length; i++) {
-      const result = python.spawn("python3", [`src\\${problemNumber}.py`]);
+      const result = python.spawn("python3", [testfile]);
       const buffer = fs.readFileSync(
         path.join(problemDirectory, `${i * 2}.txt`)
       );
@@ -99,17 +101,28 @@ export default class BOJ {
       );
       result.stdin.write(buffer);
       result.stdout.once("data", (data) => {
-        console.log(answerBuffer.toString().trim() === data.toString().trim());
-        console.log(data.toString());
-        console.log(answerBuffer.toString());
+        channel.appendLine(`\x1b[36m%s\x1b[0m;31m Red message`);
+        channel.appendLine(`Test Case #${i + 1}`);
+        if (answerBuffer.toString().trim() === data.toString().trim()) {
+          channel.appendLine(`정답`);
+        } else {
+          channel.appendLine(`땡`);
+          channel.appendLine(`실행 결과`);
+          channel.appendLine(data.toString());
+          channel.appendLine(`정답`);
+          channel.appendLine(answerBuffer.toString());
+        }
+        // console.log(answerBuffer.toString().trim() === data.toString().trim());
+        // console.log(data.toString());
+        // console.log(answerBuffer.toString());
       });
       result.stderr.on("data", (data) => {
-        console.log(data.toString());
+        channel.appendLine(`에러`);
+        channel.appendLine(`실행 결과`);
+        channel.appendLine(data.toString());
+        channel.appendLine(`정답`);
+        channel.appendLine(answerBuffer.toString());
       });
     }
   }
 }
-
-const boj = new BOJ(__dirname);
-// (async () => await boj.load(16918))();
-boj.test(21771);
