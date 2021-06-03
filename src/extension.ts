@@ -1,26 +1,51 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
-
+import * as path from "path";
+import * as vscode from "vscode";
+import BOJ from "./BOJ";
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  // Use the console to output diagnostic information (console.log) and errors (console.error)
+  // This line of code will only be executed once when your extension is activated
+  console.log('Congratulations, your extension "bojhelper" is now active!');
+  // The command has been defined in the package.json file
+  // Now provide the implementation of the command with registerCommand
+  // The commandId parameter must match the command field in package.json
+  let disposable = vscode.commands.registerCommand(
+    "bojhelper.test",
+    async () => {
+      // The code you place here will be executed every time your command is executed
+      try {
+        const currentlyOpenTabfilePath = vscode.window.activeTextEditor
+          ?.document.fileName as string;
+        await vscode.window.activeTextEditor?.document.save();
+        const fileNumber = path.basename(currentlyOpenTabfilePath, ".py");
+        const boj = new BOJ(context.extensionPath);
+        await boj.load(fileNumber);
+        const terminal = vscode.window.createOutputChannel("BOJ");
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "bojhelper" is now active!');
+        terminal.show(true);
+        vscode.window.onDidChangeActiveColorTheme;
+        boj.test(
+          currentlyOpenTabfilePath,
+          Number.parseInt(fileNumber),
+          terminal
+        );
+        // Display a message box to the user
+        console.log("hi");
+        vscode.window.showInformationMessage(
+          `${currentlyOpenTabfilePath}${fileNumber}`
+        );
+      } catch (e) {
+        vscode.window.showInformationMessage(
+          `test error!: ${e} ${context.extensionPath}`
+        );
+      }
+      // Display a message box to the user
+      // vscode.window.showInformationMessage(`test error!`);
+    }
+  );
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('bojhelper.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from bojHelper!');
-	});
-
-	context.subscriptions.push(disposable);
+  context.subscriptions.push(disposable);
 }
 
 // this method is called when your extension is deactivated
