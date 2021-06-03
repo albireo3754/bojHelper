@@ -14,6 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
     "bojhelper.test",
     async () => {
       // The code you place here will be executed every time your command is executed
+      const terminal = vscode.window.createOutputChannel("BOJ");
       try {
         const currentlyOpenTabfilePath = vscode.window.activeTextEditor
           ?.document.fileName as string;
@@ -21,10 +22,8 @@ export function activate(context: vscode.ExtensionContext) {
         const fileNumber = path.basename(currentlyOpenTabfilePath, ".py");
         const boj = new BOJ(context.extensionPath);
         await boj.load(fileNumber);
-        const terminal = vscode.window.createOutputChannel("BOJ");
-
         terminal.show(true);
-        vscode.window.onDidChangeActiveColorTheme;
+        terminal.appendLine("---------start---------");
         boj.test(
           currentlyOpenTabfilePath,
           Number.parseInt(fileNumber),
