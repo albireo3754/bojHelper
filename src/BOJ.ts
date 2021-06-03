@@ -58,20 +58,24 @@ export default class BOJ {
       `${problemNumber}`
     );
     for (let i = 0; i < testCases.length; i += 2) {
+      let problemString = testCases[i].innerText;
+      // 끝이 엔터로 끝나지 않으면
+      if (!problemString.match(/\t$/)) {
+        problemString += `\n`;
+      }
       fs.mkdirSync(problemDirectory, {
         recursive: true,
       });
-      fs.writeFileSync(
-        path.join(problemDirectory, `${i}.txt`),
-        testCases[i].innerText
-      );
+      fs.writeFileSync(path.join(problemDirectory, `${i}.txt`), problemString);
+      let answerString = testCases[i + 1].innerText;
+      // 끝이 엔터로 끝나지 않으면
+      if (!answerString.match(/\t$/)) {
+        answerString += `\n`;
+      }
       fs.mkdirSync(answerDirectory, {
         recursive: true,
       });
-      fs.writeFileSync(
-        path.join(answerDirectory, `${i}.txt`),
-        testCases[i + 1].innerText
-      );
+      fs.writeFileSync(path.join(answerDirectory, `${i}.txt`), answerString);
     }
   }
 
@@ -106,21 +110,17 @@ export default class BOJ {
     const fileLists = fs.readdirSync(problemDirectory);
     for (let i = 0; i < fileLists.length; i++) {
       const result = python.spawn("python3", [testfile]);
-      const buffer = fs.readFileSync(
+      const problemBuffer = fs.readFileSync(
         path.join(problemDirectory, `${i * 2}.txt`)
       );
       const answerBuffer = fs.readFileSync(
         path.join(answerDirectory, `${i * 2}.txt`)
       );
       console.log("terminal?");
-      result.stdin.write(buffer, (data) => {
-        console.log("data", data);
-      });
+      result.stdin.write(problemBuffer);
 
       result.stdout.on("data", (data) => {
-        console.log(colors.red(`정답`), "정답");
-        console.log(data.toString());
-        // channel.appendLine(`[warning] [info] ts`);
+        // console.log("output data", data);
         channel.appendLine(`Test Case #${i + 1}`);
         if (answerBuffer.toString().trim() === data.toString().trim()) {
           channel.appendLine(`정답`);
@@ -131,10 +131,6 @@ export default class BOJ {
           channel.appendLine(`정답`);
           channel.appendLine(answerBuffer.toString());
         }
-
-        // console.log(answerBuffer.toString().trim() === data.toString().trim());
-        // console.log(data.toString());
-        // console.log(answerBuffer.toString());
       });
       result.stderr.on("data", (data) => {
         channel.appendLine(`에러`);
