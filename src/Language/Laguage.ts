@@ -29,7 +29,8 @@ class Cpp implements Language {
     testFileURL: string,
     problemNumber: string
   ): ChildProcessWithoutNullStreams {
-    process.execSync(`g++ ${testFileURL} -o ${problemNumber}`);
-    return process.spawn(`./${problemNumber}`);
+    const objectFileURL = testFileURL.slice(0, testFileURL.length - 4)
+    process.execSync(`g++ ${testFileURL} -o ${objectFileURL}`);
+    return process.spawn(`${objectFileURL}`);
   }
 }
