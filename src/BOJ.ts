@@ -1,5 +1,5 @@
-import axios from "axios";
 import parse, { HTMLElement } from "node-html-parser";
+import axios from "./customAxios";
 import * as fs from "fs";
 import * as path from "path";
 import * as python from "child_process";
