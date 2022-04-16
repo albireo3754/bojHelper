@@ -15,4 +15,4 @@ ctrl + alt + t 를 하면 자동으로 채점 후 결과창이 아래처럼 나�
 
 ## 지원 가능 언어(컴파일러)
 
-python(python), cpp(gcc)
+python(python), cpp(g++)

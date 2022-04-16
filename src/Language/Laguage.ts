@@ -30,6 +30,6 @@ class Cpp implements Language {
     problemNumber: string
   ): ChildProcessWithoutNullStreams {
     process.execSync(`g++ ${testFileURL} -o ${problemNumber}`);
-    return process.spawn(`${problemNumber}`);
+    return process.spawn(`./${problemNumber}`);
   }
 }
