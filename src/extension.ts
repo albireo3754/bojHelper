@@ -19,31 +19,30 @@ export function activate(context: vscode.ExtensionContext) {
         const currentlyOpenTabfilePath = vscode.window.activeTextEditor
           ?.document.fileName as string;
         await vscode.window.activeTextEditor?.document.save();
-        const fileNumber = path.basename(currentlyOpenTabfilePath, ".py");
-        const boj = new BOJ(context.extensionPath);
-        await boj.load(fileNumber);
+        const boj = new BOJ(context.extensionPath, currentlyOpenTabfilePath);
+        const testNumber = await boj.prepareTest();
         terminal.show(true);
-        terminal.appendLine("---------start---------");
-        boj.test(
-          currentlyOpenTabfilePath,
-          Number.parseInt(fileNumber),
-          terminal
+        terminal.appendLine(`---------${testNumber}번 채점 시작---------`);
+        terminal.appendLine(
+          `문제링크: https://www.acmicpc.net/problem/${testNumber}`
         );
+        terminal.appendLine(`결과 창은 1분 뒤에 닫힙니다.`);
+
+        boj.test(terminal);
         // Display a message box to the user
-        console.log("hi");
-        vscode.window.showInformationMessage(
-          `${currentlyOpenTabfilePath}${fileNumber}`
-        );
+        vscode.window.showInformationMessage(`${currentlyOpenTabfilePath}`);
       } catch (e) {
         vscode.window.showInformationMessage(
           `test error!: ${e} ${context.extensionPath}`
         );
       }
+      setTimeout(() => {
+        terminal.dispose();
+      }, 60000);
       // Display a message box to the user
       // vscode.window.showInformationMessage(`test error!`);
     }
   );
-
   context.subscriptions.push(disposable);
 }
 

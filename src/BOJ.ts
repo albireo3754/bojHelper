@@ -2,33 +2,38 @@ import parse, { HTMLElement } from "node-html-parser";
 import axios from "./customAxios";
 import * as fs from "fs";
 import * as path from "path";
-import * as python from "child_process";
+import * as process from "child_process";
 import * as vscode from "vscode";
 import * as colors from "colors";
 export default class BOJ {
-  constructor(private globalUri: string) {}
+  private problemNumber: string;
+  constructor(private globalUri: string, private testFileURL: string) {
+    this.problemNumber = path.basename(this.testFileURL, ".cpp");
+  }
 
-  async load(problemNumber: string | number) {
+  public async prepareTest(): Promise<string> {
     const problemDirectory = path.join(
       this.globalUri,
       "problem",
-      `${problemNumber}`
+      `${this.problemNumber}`
     );
     const answerDirectory = path.join(
       this.globalUri,
       "answer",
-      `${problemNumber}`
+      `${this.problemNumber}`
     );
     if (
-      !this.fileExist(problemNumber) ||
+      !this.cacheExist() ||
       !this.isFileHasSameLength(problemDirectory, answerDirectory)
     ) {
-      const testCases = await this.crawl(problemNumber);
-      this.save(testCases, problemNumber);
+      const testCases = await this.crawl();
+      // TODO: Cache 갱신
+      this.saveCache(testCases);
     }
+    return this.problemNumber;
   }
 
-  isFileHasSameLength(
+  private isFileHasSameLength(
     problemDirectory: string,
     answerDirectory: string
   ): boolean {
@@ -38,27 +43,28 @@ export default class BOJ {
     );
   }
 
-  async crawl(problemNumber: string | number) {
+  private async crawl() {
     const { data } = await axios.get(
-      `https://www.acmicpc.net/problem/${problemNumber}`
+      `https://www.acmicpc.net/problem/${this.problemNumber}`
     );
     const testCases = await parse(data).querySelectorAll(".sampledata");
     return testCases;
   }
 
-  save(testCases: HTMLElement[], problemNumber: string | number) {
+  private saveCache(testCases: HTMLElement[]) {
     const problemDirectory = path.join(
       this.globalUri,
       "problem",
-      `${problemNumber}`
+      `${this.problemNumber}`
     );
     const answerDirectory = path.join(
       this.globalUri,
       "answer",
-      `${problemNumber}`
+      `${this.problemNumber}`
     );
+    testCases;
     for (let i = 0; i < testCases.length; i += 2) {
-      let problemString = testCases[i].innerText;
+      let problemString = testCases[i].innerText.replace("\r\n", "\n");
       // 끝이 엔터로 끝나지 않으면
       if (!problemString.match(/\t$/)) {
         problemString += `\n`;
@@ -67,7 +73,7 @@ export default class BOJ {
         recursive: true,
       });
       fs.writeFileSync(path.join(problemDirectory, `${i}.txt`), problemString);
-      let answerString = testCases[i + 1].innerText;
+      let answerString = testCases[i + 1].innerText.replace("\r\n", "\n");
       // 끝이 엔터로 끝나지 않으면
       if (!answerString.match(/\t$/)) {
         answerString += `\n`;
@@ -79,16 +85,16 @@ export default class BOJ {
     }
   }
 
-  fileExist(problemNumber: string | number): boolean {
+  private cacheExist(): boolean {
     const problemDirectory = path.join(
       this.globalUri,
       "problem",
-      `${problemNumber}`
+      `${this.problemNumber}`
     );
     const answerDirectory = path.join(
       this.globalUri,
       "answer",
-      `${problemNumber}`
+      `${this.problemNumber}`
     );
     if (fs.existsSync(problemDirectory) && fs.existsSync(answerDirectory)) {
       return true;
@@ -96,40 +102,47 @@ export default class BOJ {
     return false;
   }
 
-  test(testfile: string, problemNumber: number, channel: vscode.OutputChannel) {
+  public test(channel: vscode.OutputChannel) {
     const problemDirectory = path.join(
       this.globalUri,
       "problem",
-      `${problemNumber}`
+      `${this.problemNumber}`
     );
     const answerDirectory = path.join(
       this.globalUri,
       "answer",
-      `${problemNumber}`
+      `${this.problemNumber}`
     );
     const fileLists = fs.readdirSync(problemDirectory);
     for (let i = 0; i < fileLists.length; i++) {
-      const result = python.spawn("python3", [testfile]);
+      // const result = process.spawn("python3", [testfile]);
+      process.execSync(`g++ ${this.testFileURL} -o ${this.problemNumber}`);
+      const result = process.spawn(`${this.problemNumber}`);
       const problemBuffer = fs.readFileSync(
         path.join(problemDirectory, `${i * 2}.txt`)
       );
+
       const answerBuffer = fs.readFileSync(
         path.join(answerDirectory, `${i * 2}.txt`)
       );
-      console.log("terminal?");
       result.stdin.write(problemBuffer);
 
       result.stdout.on("data", (data) => {
-        // console.log("output data", data);
         channel.appendLine(`Test Case #${i + 1}`);
-        if (answerBuffer.toString().trim() === data.toString().trim()) {
+        answerBuffer;
+        const expectedAnswerString = answerBuffer
+          .toString()
+          .replace("\r\n", "\n")
+          .trim();
+        const answerString = data.toString().replace("\r\n", "\n").trim();
+        if (expectedAnswerString === answerString) {
           channel.appendLine(`정답`);
         } else {
           channel.appendLine(`땡`);
           channel.appendLine(`실행 결과`);
-          channel.appendLine(data.toString());
+          channel.appendLine(expectedAnswerString);
           channel.appendLine(`정답`);
-          channel.appendLine(answerBuffer.toString());
+          channel.appendLine(answerString);
         }
       });
       result.stderr.on("data", (data) => {
