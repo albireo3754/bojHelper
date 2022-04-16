@@ -2,7 +2,7 @@
   "name": "bojhelper",
   "displayName": "bojHelper",
   "description": "make test easy for boj study",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.56.0"
   },
