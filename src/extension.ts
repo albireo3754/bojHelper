@@ -26,19 +26,21 @@ export function activate(context: vscode.ExtensionContext) {
         terminal.appendLine(
           `문제링크: https://www.acmicpc.net/problem/${testNumber}`
         );
-        terminal.appendLine(`결과 창은 1분 뒤에 닫힙니다.`);
-
-        boj.test(terminal);
+        boj.test(terminal, () => {
+          terminal.appendLine("---------채점 완료---------");
+          terminal.appendLine(`결과 창은 1분 뒤에 닫힙니다.`);
+          setTimeout(() => {
+            terminal.dispose();
+          }, 60000);
+          vscode.window.showInformationMessage(`${currentlyOpenTabfilePath}`);
+        });
         // Display a message box to the user
-        vscode.window.showInformationMessage(`${currentlyOpenTabfilePath}`);
       } catch (e) {
         vscode.window.showInformationMessage(
           `test error!: ${e} ${context.extensionPath}`
         );
       }
-      setTimeout(() => {
-        terminal.dispose();
-      }, 60000);
+
       // Display a message box to the user
       // vscode.window.showInformationMessage(`test error!`);
     }

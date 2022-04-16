@@ -2,13 +2,17 @@ import parse, { HTMLElement } from "node-html-parser";
 import axios from "./customAxios";
 import * as fs from "fs";
 import * as path from "path";
-import * as process from "child_process";
 import * as vscode from "vscode";
 import * as colors from "colors";
+import Language from "./Language/Laguage";
 export default class BOJ {
   private problemNumber: string;
+  private language: Language;
+
   constructor(private globalUri: string, private testFileURL: string) {
-    this.problemNumber = path.basename(this.testFileURL, ".cpp");
+    const problemName = path.basename(this.testFileURL).split(".");
+    this.problemNumber = problemName[0];
+    this.language = Language.create(problemName[1]);
   }
 
   public async prepareTest(): Promise<string> {
@@ -102,7 +106,7 @@ export default class BOJ {
     return false;
   }
 
-  public test(channel: vscode.OutputChannel) {
+  public test(channel: vscode.OutputChannel, handler: () => void) {
     const problemDirectory = path.join(
       this.globalUri,
       "problem",
@@ -115,9 +119,10 @@ export default class BOJ {
     );
     const fileLists = fs.readdirSync(problemDirectory);
     for (let i = 0; i < fileLists.length; i++) {
-      // const result = process.spawn("python3", [testfile]);
-      process.execSync(`g++ ${this.testFileURL} -o ${this.problemNumber}`);
-      const result = process.spawn(`${this.problemNumber}`);
+      const processIO = this.language.excuteTerminal(
+        this.testFileURL,
+        this.problemNumber
+      );
       const problemBuffer = fs.readFileSync(
         path.join(problemDirectory, `${i * 2}.txt`)
       );
@@ -125,9 +130,9 @@ export default class BOJ {
       const answerBuffer = fs.readFileSync(
         path.join(answerDirectory, `${i * 2}.txt`)
       );
-      result.stdin.write(problemBuffer);
+      processIO.stdin.write(problemBuffer);
 
-      result.stdout.on("data", (data) => {
+      processIO.stdout.on("data", (data) => {
         channel.appendLine(`Test Case #${i + 1}`);
         answerBuffer;
         const expectedAnswerString = answerBuffer
@@ -145,13 +150,16 @@ export default class BOJ {
           channel.appendLine(answerString);
         }
       });
-      result.stderr.on("data", (data) => {
+      processIO.stderr.on("data", (data) => {
         channel.appendLine(`에러`);
         channel.appendLine(`실행 결과`);
         channel.appendLine(data.toString());
         channel.appendLine(`정답`);
         channel.appendLine(answerBuffer.toString());
       });
+      if (i == fileLists.length - 1) {
+        processIO.stdout.once("end", handler);
+      }
     }
   }
 }
