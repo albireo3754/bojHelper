@@ -1,7 +1,7 @@
 import { parse } from "path/posix";
 import * as vscode from "vscode";
 import BOJ from "./BOJ";
-import axios from "./customAxios"
+import axios from "./customAxios";
 import ProblemFile from "./ProblemFile";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -15,14 +15,14 @@ export function activate(context: vscode.ExtensionContext) {
     async () => {
       const currentlyOpenTabfilePath = vscode.window.activeTextEditor
           ?.document.fileName as string;
-      const currentFile = new ProblemFile(currentlyOpenTabfilePath);
+      const currentFile = new ProblemFile(context.extensionPath, currentlyOpenTabfilePath);
       const panel = vscode.window.createWebviewPanel(
         "boj",
         "BOJ WebView",
         vscode.ViewColumn.Beside,
         {},
       );
-      panel.webview.html = await currentFile.getWebviewContent();
+      panel.webview.html = await currentFile.getHTML();
     } 
   );
   
@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
         const currentlyOpenTabfilePath = vscode.window.activeTextEditor
           ?.document.fileName as string;
         await vscode.window.activeTextEditor?.document.save();
-        const currentFile = new ProblemFile(currentlyOpenTabfilePath);
+        const currentFile = new ProblemFile(context.extensionPath, currentlyOpenTabfilePath);
         const boj = new BOJ(context.extensionPath, currentlyOpenTabfilePath, currentFile);
         const testNumber = await boj.prepareTest();
         terminal.show(true);

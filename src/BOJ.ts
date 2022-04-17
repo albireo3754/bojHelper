@@ -7,6 +7,8 @@ import * as colors from "colors";
 import Language from "./Language/Laguage";
 import ProblemFile from "./ProblemFile";
 
+// TODO: BOJ 객체의 캐쉬로직을 다 없애야함
+
 export default class BOJ {
   private problemNumber: string;
   private language: Language;
@@ -18,19 +20,8 @@ export default class BOJ {
   }
 
   public async prepareTest(): Promise<string> {
-    const problemDirectory = path.join(
-      this.globalUri,
-      "problem",
-      `${this.problemNumber}`
-    );
-    const answerDirectory = path.join(
-      this.globalUri,
-      "answer",
-      `${this.problemNumber}`
-    );
     if (
-      !this.cacheExist() ||
-      !this.isFileHasSameLength(problemDirectory, answerDirectory)
+      !this.cacheExist()
     ) {
       const testCases = await this.crawl();
       // TODO: Cache 갱신
@@ -39,21 +30,9 @@ export default class BOJ {
     return this.problemNumber;
   }
 
-  private isFileHasSameLength(
-    problemDirectory: string,
-    answerDirectory: string
-  ): boolean {
-    return (
-      fs.readdirSync(problemDirectory).length ===
-      fs.readdirSync(answerDirectory).length
-    );
-  }
-
   private async crawl() {
-    const { data } = await axios.get(
-      `https://www.acmicpc.net/problem/${this.problemNumber}`
-    );
-    const testCases = await parse(data).querySelectorAll(".sampledata");
+    const data = await this.file.getHTML();
+    const testCases = parse(data).querySelectorAll(".sampledata");
     return testCases;
   }
 
@@ -159,7 +138,7 @@ export default class BOJ {
         channel.appendLine(`정답`);
         channel.appendLine(answerBuffer.toString());
       });
-      if (i == fileLists.length - 1) {
+      if (i === fileLists.length - 1) {
         processIO.stdout.once("end", handler);
       }
     }
