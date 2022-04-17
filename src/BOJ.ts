@@ -5,11 +5,13 @@ import * as path from "path";
 import * as vscode from "vscode";
 import * as colors from "colors";
 import Language from "./Language/Laguage";
+import ProblemFile from "./ProblemFile";
+
 export default class BOJ {
   private problemNumber: string;
   private language: Language;
 
-  constructor(private globalUri: string, private testFileURL: string) {
+  constructor(private globalUri: string, private testFileURL: string, private file: ProblemFile) {
     const problemName = path.basename(this.testFileURL).split(".");
     this.problemNumber = problemName[0];
     this.language = Language.create(problemName[1]);

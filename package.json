@@ -10,7 +10,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:bojhelper.test"
+    "onCommand:bojhelper.test",
+    "onCommand:bojhelper.webView"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -18,12 +19,20 @@
       {
         "command": "bojhelper.test",
         "title": "BOJ.test"
+      },
+      {
+        "command": "bojhelper.webView",
+        "title": "BOJ.WebView"
       }
     ],
     "keybindings": [
       {
         "command": "bojhelper.test",
         "key": "ctrl+alt+t"
+      }, 
+      {
+        "command": "bojhelper.webView",
+        "key": "shift+ctrl+alt+t"
       }
     ]
   },
