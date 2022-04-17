@@ -2,7 +2,7 @@
   "name": "bojhelper",
   "displayName": "bojHelper",
   "description": "make test easy for boj study",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "engines": {
     "vscode": "^1.56.0"
   },
@@ -29,7 +29,7 @@
       {
         "command": "bojhelper.test",
         "key": "ctrl+alt+t"
-      }, 
+      },
       {
         "command": "bojhelper.webView",
         "key": "shift+ctrl+alt+t"
