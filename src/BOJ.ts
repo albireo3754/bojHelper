@@ -14,9 +14,17 @@ export default class BOJ {
   private language: Language;
 
   constructor(private globalUri: string, private testFileURL: string, private file: ProblemFile) {
-    const problemName = path.basename(this.testFileURL).split(".");
-    this.problemNumber = problemName[0];
-    this.language = Language.create(problemName[1]);
+    const { problemNumber, extension } = this.parsingProblemName(path.basename(this.testFileURL));
+    this.problemNumber = problemNumber;
+    this.language = Language.create(extension);
+  }
+
+  public parsingProblemName(name: string): { problemNumber: string, extension: string } {
+    const regex = /(?<problemNumber>[0-9]+)\.(?<extension>.+$)/;
+    const matchGroups = name.match(regex)?.groups;
+    const problemNumber = matchGroups?.problemNumber ?? "";
+    const extension = matchGroups?.extension ?? "";
+    return { problemNumber, extension };   
   }
 
   public async prepareTest(): Promise<string> {
