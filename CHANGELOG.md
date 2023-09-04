@@ -1,8 +1,6 @@
 # Change Log
 
-All notable changes to the "bojhelper" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+- js 대응 추가
 
 ## [Unreleased]
 

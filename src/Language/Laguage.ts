@@ -10,6 +10,8 @@ export default abstract class Language {
   static create(ext: string): Language {
     if (ext == "cpp") {
       return new Cpp();
+    } else if (ext == "js") {
+      return new JS();
     }
     return new Python3();
   }
@@ -29,8 +31,17 @@ class Cpp implements Language {
     testFileURL: string,
     problemNumber: string
   ): ChildProcessWithoutNullStreams {
-    const objectFileURL = testFileURL.slice(0, testFileURL.length - 4)
+    const objectFileURL = testFileURL.slice(0, testFileURL.length - 4);
     process.execSync(`g++ ${testFileURL} -o ${objectFileURL}`);
     return process.spawn(`${objectFileURL}`);
+  }
+}
+
+class JS implements Language {
+  excuteTerminal(
+    testfile: string,
+    problemNumber: string
+  ): ChildProcessWithoutNullStreams {
+    return process.spawn("node", [testfile]);
   }
 }

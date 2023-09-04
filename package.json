@@ -1,7 +1,7 @@
 {
   "name": "bojhelper",
   "displayName": "bojHelper",
-  "description": "make test easy for boj study",
+  "description": "백준 예제 자동 채점기",
   "version": "2.0.0",
   "engines": {
     "vscode": "^1.56.0"
@@ -21,7 +21,7 @@
         "title": "BOJ.test"
       },
       {
-        "command": "bojhelper.webView",
+        "command": "bojhelper.webV기ew",
         "title": "BOJ.WebView"
       }
     ],
