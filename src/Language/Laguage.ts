@@ -32,7 +32,7 @@ class Cpp implements Language {
     problemNumber: string
   ): ChildProcessWithoutNullStreams {
     const objectFileURL = testFileURL.slice(0, testFileURL.length - 4);
-    process.execSync(`g++ ${testFileURL} -o ${objectFileURL}`);
+    process.execSync(`g++ -std=c++17 ${testFileURL} -o ${objectFileURL}`);
     return process.spawn(`${objectFileURL}`);
   }
 }
