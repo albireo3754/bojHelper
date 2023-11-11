@@ -3,11 +3,18 @@ on:
     branches:
       - release/*
   workflow_dispatch:
-    ref: release
+    inputs:
+      version:
+        type: choice
+        description: version
+        options:
+        - patch
+        - minor
+        - major
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -17,6 +24,6 @@ jobs:
         node-version: 16.x
     - run: npm install
     - name: Publish
-      run: npm run deploy
+      run: npm run deploy {{ inputs.version }}
       env:
         VSCE_PAT: ${{ secrets.VSCE_PAT }}
