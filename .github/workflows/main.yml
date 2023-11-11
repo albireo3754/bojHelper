@@ -24,6 +24,6 @@ jobs:
         node-version: 16.x
     - run: npm install
     - name: Publish
-      run: npm run deploy {{ inputs.version }}
+      run: npm run deploy ${{ inputs.version }}
       env:
         VSCE_PAT: ${{ secrets.VSCE_PAT }}
