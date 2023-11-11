@@ -22,7 +22,10 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 16.x
-    - run: npm install
+    - name: Install Yarn
+      run: npm install -g yarn
+    - name: Yarn Install
+      run: yarn install
     - name: Publish
       run: npm run deploy ${{ inputs.version }}
       env:
