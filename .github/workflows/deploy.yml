@@ -26,6 +26,10 @@ jobs:
       run: npm install -g yarn
     - name: Yarn Install
       run: yarn install
+    - name: GitLogin
+      run: |
+        git config --global user.email "starpro123@naver.com"
+        git config --global user.name "alibreo3754"
     - name: Publish
       run: npm run deploy ${{ inputs.version }}
       env:
